@@ -136,6 +136,7 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
                         }
                       }
                       telemetry.update();
+
                     }
                 }
             }

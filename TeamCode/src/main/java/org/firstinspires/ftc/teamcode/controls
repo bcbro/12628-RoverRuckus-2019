@@ -1,0 +1,15 @@
+Gamepad 1:
+    x for resuming movement of rotation
+    y for stopping rotation(either direction)
+    a for intake motor
+    b for latching
+    left_stick up and down for rotation controls
+    left trigger for retracting
+    right trigger for expanding XRail
+    left bumper for resuming extension or retraction
+    right bumper for stopping extension or retraction
+    dpad left and right to control horizontal movement of the box
+    dpad up and down to control vertical movement of the box
+Gamepad 2:
+    left stick up and down to control up and down movement of the robot
+    right stick left and right to control turning movement of the robot
