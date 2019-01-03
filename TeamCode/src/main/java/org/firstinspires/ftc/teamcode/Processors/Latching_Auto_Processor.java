@@ -8,10 +8,6 @@ public class Latching_Auto_Processor extends Base_Processor {
     public Latching_Auto_Processor(LinearOpMode opMode) {
         super(opMode);
     }
-    final  double LATCH_POSITION = 0.33;
-
-    final  double UNLATCH_POSITION = -0.33;
-
     public int SLEEPTIME=1000;
 
 
