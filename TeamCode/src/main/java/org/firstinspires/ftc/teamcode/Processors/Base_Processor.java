@@ -17,6 +17,7 @@ public abstract class Base_Processor implements Processor {
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
+    private static final double FUDGE_FACTOR = 0.53;
     protected LinearOpMode opMode;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -26,12 +27,17 @@ public abstract class Base_Processor implements Processor {
 
     }
 
-    public  Hardware_Pushbot getHardwarePushbot() {
+    public Hardware_Pushbot getHardwarePushbot() {
 
         // TODO:  Hack for now
-        if (opMode instanceof Base_TeleOp){
-            return ((Base_TeleOp)opMode).getHardwarePushbot();
+        if (opMode instanceof Base_TeleOp) {
+            return ((Base_TeleOp) opMode).getHardwarePushbot();
         }
+
+        if (opMode instanceof RobotInterface) {
+            return ((RobotInterface) opMode).getHardware_Pushbot();
+        }
+
         return Base_Autonomous.hardwarePushbot;
     }
 
@@ -66,19 +72,24 @@ public abstract class Base_Processor implements Processor {
 
         // Ensure that the opmode is still active
         // Determine new target position, and pass to motor controller
-        //newLeftTarget = getHardwarePushbot().leftDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
-        //newRightTarget = getHardwarePushbot().rightDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-        //getHardwarePushbot().leftDrive.setTargetPosition(newLeftTarget);
-        //getHardwarePushbot().rightDrive.setTargetPosition(newRightTarget);
+        double fudge_factor = 1.0;
+        if (leftInches == rightInches) {
+            fudge_factor = FUDGE_FACTOR;
+        }
+        newLeftTarget = getHardwarePushbot().leftDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH * fudge_factor);
+        newRightTarget = getHardwarePushbot().rightDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH * fudge_factor);
+
+        getHardwarePushbot().leftDrive.setTargetPosition(newLeftTarget);
+        getHardwarePushbot().rightDrive.setTargetPosition(newRightTarget);
 
         // Turn On RUN_TO_POSITION
-        //getHardwarePushbot().leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //getHardwarePushbot().rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        getHardwarePushbot().leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        getHardwarePushbot().rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
         runtime.reset();
-        //getHardwarePushbot().leftDrive.setPower(Math.abs(0.5));
-        //getHardwarePushbot().rightDrive.setPower(Math.abs(0.5));
+        getHardwarePushbot().leftDrive.setPower(Math.abs(0.5));
+        getHardwarePushbot().rightDrive.setPower(Math.abs(0.5));
 
         // keep looping while we are still active, and there is time left, and both motors are running.
         // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -86,20 +97,19 @@ public abstract class Base_Processor implements Processor {
         // always end the motion as soon as possible.
         // However, if you require that BOTH motors have finished their moves before the getHardwarePushbot() continues
         // onto the next step, use (isBusy() || isBusy()) in the loop test.
-        /*while ((runtime.seconds() < timeoutS) &&
-                (getHardwarePushbot().leftDrive.isBusy() && getHardwarePushbot().rightDrive.isBusy())) {
+        while ((getHardwarePushbot().leftDrive.isBusy() && getHardwarePushbot().rightDrive.isBusy())) {
             getTelemetry().update();
         }
-*/
+
         // Stop all motion;
-        //getHardwarePushbot().leftDrive.setPower(0);
-        //getHardwarePushbot().rightDrive.setPower(0);
+        getHardwarePushbot().leftDrive.setPower(0);
+        getHardwarePushbot().rightDrive.setPower(0);
 
         // Turn off RUN_TO_POSITION
-        //getHardwarePushbot().leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //getHardwarePushbot().rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        getHardwarePushbot().leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        getHardwarePushbot().rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //  sleep(250);   // optional pause after each move
+        sleep(50);   // optional pause after each move
     }
 }
 

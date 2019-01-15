@@ -1,46 +1,43 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TestProcessors;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Hardware_Pushbot;
 import org.firstinspires.ftc.teamcode.Processors.Base_Processor;
-import org.firstinspires.ftc.teamcode.Processors.Crater_Movement_Auto_Processor;
-import org.firstinspires.ftc.teamcode.Processors.RobotInterface;
-import org.firstinspires.ftc.teamcode.Processors.Sampling_to_Depo_Auto_Processor;
 import org.firstinspires.ftc.teamcode.Processors.Latching_Auto_Processor;
 import org.firstinspires.ftc.teamcode.Processors.Processor;
 import org.firstinspires.ftc.teamcode.Processors.Robot;
+import org.firstinspires.ftc.teamcode.Processors.RobotInterface;
 import org.firstinspires.ftc.teamcode.Processors.Sampling_Auto_Processor;
-import org.firstinspires.ftc.teamcode.Processors.Team_Marker_Auto_Processor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-//import org.firstinspires.ftc.teamcode.Processors.Latching_Auto_Processor;
-//import org.firstinspires.ftc.teamcode.Processors.Latching_Processor;
+@Autonomous(group="Autonomous", name="LatchingTest")
+public class LatchingProcessor extends LinearOpMode implements RobotInterface {
 
-public class Base_Autonomous extends LinearOpMode implements RobotInterface {
     public static Hardware_Pushbot hardwarePushbot = new Hardware_Pushbot();
     public boolean latchmode;
     public boolean depo;
-    List<Base_Processor> Autonomous_processors;
+    List<Base_Processor> autonomous_processors;
 
 
     Robot robot;
 
-    public Base_Autonomous(boolean Depo) {
+    public LatchingProcessor(boolean Depo) {
         this.depo = Depo;
     }
 
-    public Base_Autonomous() {
-
-    }
+    public LatchingProcessor() {
 
 
-    public Robot getRobot() {
-        return robot;
     }
 
     public Hardware_Pushbot getHardware_Pushbot(){ return hardwarePushbot;}
+    public Robot getRobot() {
+        return robot;
+    }
 
     @Override
 
@@ -48,14 +45,14 @@ public class Base_Autonomous extends LinearOpMode implements RobotInterface {
         hardwarePushbot.init(this.hardwareMap);
         robot  = new Robot(this);
         robot.init();
-        Autonomous_processors = Arrays.asList(
-                //new Latching_Auto_Processor(this),
-                //new Latching_Movement_Auto_Processor(this),
-                new Sampling_Auto_Processor(this),
-                new Sampling_to_Depo_Auto_Processor(this, depo),
-                //new Retreat_Auto_Processor(this, depo),
-                new Team_Marker_Auto_Processor(this)
-                //new Crater_Movement_Auto_Processor(this,depo)
+        autonomous_processors = new ArrayList<Base_Processor>();
+        autonomous_processors.add(new Latching_Auto_Processor(this));
+            //new Latching_Movement_Auto_Processor(this),
+            //new Sampling_Auto_Processor(this),
+            //new Sampling_to_Depo_Auto_Processor(this, depo),
+            //new Retreat_Auto_Processor(this, depo),
+
+            // new Crater_Movement_Auto_Processor(this)
                 /*new GlyphClawAutoProcessor(this),
 
                 new PictographProcessor(this),
@@ -65,10 +62,10 @@ public class Base_Autonomous extends LinearOpMode implements RobotInterface {
                 new GlyphEncoderAutoProcessors(this, baseColor, relicSide)
 */
 
-        );
 
 
-        for (Processor processor : Autonomous_processors) {
+
+        for (Processor processor : autonomous_processors) {
 
             processor.init();
 
@@ -88,7 +85,7 @@ public class Base_Autonomous extends LinearOpMode implements RobotInterface {
 
         // run until the end of the match (driver presses STOP)
 
-        for (Processor processor : Autonomous_processors) {
+        for (Processor processor : autonomous_processors) {
 
             if (opModeIsActive()) {
                 processor.process();
@@ -108,7 +105,7 @@ public class Base_Autonomous extends LinearOpMode implements RobotInterface {
 
     public Processor getProcessors(Class clazz) {
 
-        for (Processor processor : Autonomous_processors)
+        for (Processor processor : autonomous_processors)
             if (clazz.isInstance(processor)) {
 
                 return processor;

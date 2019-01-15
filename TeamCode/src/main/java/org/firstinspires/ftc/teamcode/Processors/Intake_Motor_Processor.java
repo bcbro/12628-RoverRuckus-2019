@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Processors;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class Intake_Motor_Processor extends Base_Processor{
+public class Intake_Motor_Processor extends Base_Processor {
     public Intake_Motor_Processor(LinearOpMode opMode) {
         super(opMode);
     }
@@ -15,15 +15,18 @@ public class Intake_Motor_Processor extends Base_Processor{
 
     @Override
     public void process() {
-        while(getGamepad(1).a) {
+        if (getGamepad(1).b) {
             intake();
+        } else {
+            stop();
         }
-        stop();
     }
+
     public void intake() {
         getHardwarePushbot().intake_motor.setPower(0.75);
     }
-    public void stop(){
+
+    public void stop() {
         getHardwarePushbot().intake_motor.setPower(0.00);
     }
 }

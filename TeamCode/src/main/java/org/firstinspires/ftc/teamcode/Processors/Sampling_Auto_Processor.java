@@ -13,24 +13,11 @@ import java.util.List;
 public class Sampling_Auto_Processor extends Base_Processor {
 
 
-    public GoldPosition goldposition;
-    double center=(double) (Math.sqrt((24^2)*2))/2;
-
-    public Sampling_Auto_Processor(LinearOpMode opMode) {
-        super(opMode);
-    }
-
-    public enum GoldPosition {
-        LEFT,
-        CENTER,
-        RIGHT
-    }
-
-
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
+    private static final int WAIT_TIME= 2000;
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
      * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
@@ -43,22 +30,27 @@ public class Sampling_Auto_Processor extends Base_Processor {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = "AfobB13/////AAABmenfOD8vu0t4ke6OE69Toxdd56dgDMJq3WTTqNS3A/n5Yg8BM3quaauTXc3/5fkFr56gXsUFI378tS9ZyYKEj+ERcEb2pIA8h06lveNCSzycC0ZUl39EhlbI75A+uLm++vCFQi5hvuNWVOwqlu6sAkXkUR2ft0a13rMyTqFIU5ML6RbOZ//+/qM6tt9tQ0UNshQTzrPW0JxlEOCyZZEXtCd1VPKIrobrogmdzcBK0J3bkSFh9CtlsUtcPo/SIgRgM/xS2d7Bc5/OIz+2qgyMWJKEvUxrS6jNx9EYukQhNEOWtyq3Y3u9vxG/YP4BOuqtxL4IfjjiH/Lq5olW+08rmRC8obftJtO5XAFydRq+ers1";
-
+    private static final String VUFORIA_KEY = "AQhhuVL/////AAABmS4u0+EtRUKkhIcbaZtQ+FR6aJt5Prxx6qPt8bcrot5G4A+DLe72s9kCh6+96KCEHitv/xbbicVwP3mKh1S1+8POubfCYm6JV07zFWU8+3X1xVFfdKnnXjhPjk4myuQAPAFE9QunebEtwLvKZ3vtjMGaukeoKSsNgs9V2u11alBC7uJo7A6k4/vJ9uYpAwL98c/f/fa578GrYY5zvPlXVWPMvI/qb4GZRByHKjlQ+A6vvhxcNmS+zSAAm6reFbRqTAG97J/ZqNgurBm6HSJF6Hl/AebqhBgqQZiWGGYUXc554yRkfU5xtYLawvgH3zGAGAuHcx4eF/AVccLcamerRdMscFLcZXQ/9AmDjZyfHeQ6";
+    public GoldPosition goldposition;
+    double center = (double) (Math.sqrt((24 ^ 2) * 2)) / 2;
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
     private VuforiaLocalizer vuforia;
-
     /**
      * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
      * Detection engine.
      */
     private TFObjectDetector tfod;
 
+    public Sampling_Auto_Processor(LinearOpMode opMode) {
+        super(opMode);
+    }
+
     @Override
     public void init() {
+
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -79,7 +71,7 @@ public class Sampling_Auto_Processor extends Base_Processor {
         if (tfod != null) {
             tfod.activate();
         }
-
+        long startTimeMillis  = System.currentTimeMillis();
         while (true) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
@@ -105,37 +97,27 @@ public class Sampling_Auto_Processor extends Base_Processor {
                             if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                                 getTelemetry().addData("Gold Mineral Position", "Left");
                                 goldposition = GoldPosition.LEFT;
-                                encoderDrive(-6,6,2);
-                                encoderDrive(-24,-24,6);
-                                if ((Base_Autonomous) opMode != null && ((Base_Autonomous) opMode).getProcessors(Depo_Movement_Auto_Processor.class) != null) {
-                                    ((Depo_Movement_Auto_Processor) ((Base_Autonomous) opMode)
-                                            .getProcessors(Depo_Movement_Auto_Processor.class))
-                                            .setGoldPosition(goldposition);
-                                }
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                getTelemetry().addData("Gold Mineral Position", "Right");
-                                goldposition = GoldPosition.RIGHT;
-                                encoderDrive(6,-6,2);
-                                encoderDrive(-24,-24,6);
-                                if ((Base_Autonomous) opMode != null && ((Base_Autonomous) opMode).getProcessors(Depo_Movement_Auto_Processor.class) != null) {
-                                    ((Depo_Movement_Auto_Processor) ((Base_Autonomous) opMode)
-                                            .getProcessors(Depo_Movement_Auto_Processor.class))
-                                            .setGoldPosition(goldposition);
-                                }
-                            } else {
-                                getTelemetry().addData("Gold Mineral Position", "Center");
-                                goldposition = GoldPosition.CENTER;
-                                encoderDrive(center, center, 4);
-                                if ((Base_Autonomous) opMode != null && ((Base_Autonomous) opMode).getProcessors(Depo_Movement_Auto_Processor.class) != null) {
-                                    ((Depo_Movement_Auto_Processor) ((Base_Autonomous) opMode)
-                                            .getProcessors(Depo_Movement_Auto_Processor.class))
-                                            .setGoldPosition(goldposition);
-                                }
                             }
+                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                            getTelemetry().addData("Gold Mineral Position", "Right");
+                            goldposition = GoldPosition.RIGHT;
+                        } else {
+                            getTelemetry().addData("Gold Mineral Position", "Center");
+                            goldposition = GoldPosition.CENTER;
+                        }
+                        getTelemetry().update();
+                        sleep(3000);
+                        if ( opMode != null  && opMode instanceof Base_Autonomous  && ((Base_Autonomous) opMode).getProcessors(Sampling_to_Depo_Auto_Processor.class) != null) {
+                            ((Sampling_to_Depo_Auto_Processor) ((Base_Autonomous) opMode)
+                                    .getProcessors(Sampling_to_Depo_Auto_Processor.class))
+                                    .setGoldPosition(goldposition);
                         }
                     }
 
                 }
+            }
+            if (System.currentTimeMillis() - startTimeMillis > WAIT_TIME){
+                break;
             }
         }
     }
@@ -167,5 +149,11 @@ public class Sampling_Auto_Processor extends Base_Processor {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    public enum GoldPosition {
+        LEFT,
+        CENTER,
+        RIGHT
     }
 }
